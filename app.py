@@ -12,6 +12,7 @@ def hello_world():
 
 @app.route('/summarize/ratio', methods=['POST'])
 def sum_ratio():
+    print("ratio")
     data = request.form
     ratio = data['ratio']
     text = data['text']
@@ -22,6 +23,7 @@ def sum_ratio():
 
 @app.route('/summarize/number', methods=['POST'])
 def sum_number():
+    print("number")
     data = request.form
     number = data['number']
     text = data['text']

@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLa
 
 # model = joblib.load('finalized_model.sav')
 
-def convert_text_to_features(text_list, max_seq_length=128):
+def convert_text_to_features(text_list, max_seq_length=1024):
     """
     Convert a list of text strings to a list of feature dictionaries
     suitable for input to a BERT model.
@@ -27,7 +27,8 @@ def convert_text_to_features(text_list, max_seq_length=128):
     """
 
     # Load the BERT tokenizer
-    bert_module = joblib.load('finalized_model.sav')
+    # bert_module = joblib.load('finalized_model.sav')
+    bert_module = hub.load("https://tfhub.dev/google/bert_uncased_L-12_H-768_A-12/2")
     vocab_file = bert_module.vocab_file.asset_path.numpy()
     do_lower_case = bert_module.do_lower_case.numpy()
     tokenizer = tf.keras.preprocessing.text.tokenizer_from_json(open(vocab_file, 'rb').read())
@@ -124,29 +125,52 @@ class BertApp(QWidget):
         self.setLayout(main_layout)
 
     def run_model(self):
+
         # Get the input data from the GUI
         input_data = self.input_field.text()
+        ratio = self.input_ratio.text()
+        sum = self.input_sum.text()
+
+        print("133")
+
+        if ratio == '' or ratio is None:
+            temp = sum
+        else:
+            temp = ratio
 
         # Send the input data to the Flask server
-        response = requests.post(SERVER_URL, data={'input': input_data})
+        if temp == ratio:
+            data = {'text': input_data, 'ratio': ratio}
+            response = requests.post(SERVER_URL+'/summarize/ratio', data=data)
+        else:
+            data = {'text': input_data, 'number': sum}
+            response = requests.post(SERVER_URL + '/summarize/number', data=data)
+        # print("response", response)
 
         # Process the response from the Flask server
         result = response.json()
-
+        # result =  requests.get('http://127.0.0.1:1313')
         # Load the BERT model from the .sav file
-        model = joblib.load('finalized_model.sav')
-
+        # model = joblib.load('finalized_model.sav')
         # Prepare the input data for the BERT model
-        input_data = [input_data]
+        # input_data = [input_data]
+        # ratio = [ratio]
+        # sum = [sum]
 
         # Convert the input data into a format that can be processed by the BERT model
-        input_features = convert_text_to_features(input_data)
+        # input_text = convert_text_to_features(input_data)
+        # input_ratio = convert_text_to_features(ratio)
+        # input_sum = convert_text_to_features(sum)
 
         # Pass the input data through the BERT model
-        output = model.predict(input_features)
+        # output = model.predict(input_text)
+        # result = model(input_data, sum)
+        # summary = "".join(result)
+        # # print(summary)
 
         # Display the results on the GUI
-        self.result_label.setText(str(output))
+        # self.result_label.setText("test")
+        self.result_label.setText(str(result))
 
 if __name__ == '__main__':
     # Set up the Flask server URL

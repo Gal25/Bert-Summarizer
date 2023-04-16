@@ -97,6 +97,8 @@ class BertApp(QWidget):
         input_layout = QHBoxLayout()
         input_layout.addWidget(QLabel('Input Text:'))
         input_layout.addWidget(self.input_field)
+        input_layout.setSizeConstraint(QHBoxLayout.SetFixedSize)
+
 
         input_numSentence = QHBoxLayout()
         input_numSentence.addWidget(QLabel('Input number of sentences:'))
@@ -105,6 +107,7 @@ class BertApp(QWidget):
         input_ratio = QHBoxLayout()
         input_ratio.addWidget(QLabel('Input ratio:'))
         input_ratio.addWidget(self.input_ratio)
+
 
         result_layout = QHBoxLayout()
         result_layout.addWidget(QLabel('Result:'))
@@ -170,7 +173,10 @@ class BertApp(QWidget):
 
         # Display the results on the GUI
         # self.result_label.setText("test")
-        self.result_label.setText(str(result))
+        summary_with_newlines = str(result).replace('. ', '.\n')
+
+        # summary_with_newlines = "\n".join([sentence["summary_text"] for sentence in str(result)])
+        self.result_label.setText(summary_with_newlines)
 
 if __name__ == '__main__':
     # Set up the Flask server URL

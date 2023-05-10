@@ -1,7 +1,8 @@
 import joblib
 import requests
 from PyQt5.QtGui import QPixmap, QPainter, QPalette
-from PyQt5.QtWidgets import QApplication,QFileDialog,QComboBox, QDialog,QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton,QMainWindow
+from PyQt5.QtWidgets import QApplication, QFileDialog, QComboBox, QDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel, \
+    QLineEdit, QPushButton, QMainWindow, QMessageBox
 
 
 class OptionDialog(QDialog):
@@ -18,9 +19,7 @@ class OptionDialog(QDialog):
         self.ok_button.clicked.connect(self.accept)
 
         # # Apply stylesheet to make captions bold
-        # self.option_combobox.setStyleSheet("font-weight: bold;")
         self.ok_button.setStyleSheet("font-weight: bold;")
-
 
         layout = QHBoxLayout()
         layout.addWidget(QLabel('Choose an Option:', styleSheet="font-weight: bold;"))
@@ -57,11 +56,7 @@ class InputDialog(QDialog):
         self.file_button = QPushButton('Browse')
         self.file_button.clicked.connect(self.browse_file)
         self.ok_button = QPushButton('OK')
-        self.ok_button.clicked.connect(self.accept)
-
-        # Apply stylesheet to make captions bold
-        # self.file_button.setStyleSheet("font-weight: bold;")
-        # self.ok_button.setStyleSheet("font-weight: bold;")
+        self.ok_button.clicked.connect(self.on_ok_clicked)
 
         layout = QHBoxLayout()
         layout.addWidget(QLabel('Select File:', styleSheet="font-weight: bold;"))
@@ -80,6 +75,20 @@ class InputDialog(QDialog):
         else:
             print(f"Failed to set background image: {image_path}")
 
+    def on_ok_clicked(self):
+        # Check if the input field is empty
+        if not self.input_field.text():
+            # Display an error message to the user
+            error_box = QMessageBox()
+            error_box.setWindowTitle('Error')
+            error_box.setText('Input text can not be empty')
+            error_box.setIcon(QMessageBox.Warning)
+            error_box.exec_()
+            return
+
+        # If the input field is not empty, accept the dialog
+        self.accept()
+
     def browse_file(self):
         options = QFileDialog.Options()
         file_path, _ = QFileDialog.getOpenFileName(self, 'Select File', '', 'All Files (*);;Text Files (*.txt)', options=options)
@@ -87,6 +96,7 @@ class InputDialog(QDialog):
             self.file_path = file_path
             with open(file_path, 'r') as file:
                 self.input_field.setText(file.read())
+
 
 class InputNum(QDialog):
     def __init__(self, input_field_text, temp):
@@ -134,6 +144,14 @@ class InputNum(QDialog):
         input_data = input_field_text
         input_num = self.input_field.text()
 
+        if not self.input_field.text() :
+            # Display an error message to the user
+            error_box = QMessageBox()
+            error_box.setWindowTitle('Error')
+            error_box.setText('Input number can not be empty')
+            error_box.setIcon(QMessageBox.Warning)
+            error_box.exec_()
+            return
 
         # Send the input data to the Flask server
         if self.temp == "ratio":

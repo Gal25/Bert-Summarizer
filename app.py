@@ -5,6 +5,7 @@ import joblib
 app = Flask(__name__)
 model = joblib.load('finalized_model.sav')
 
+
 @app.route('/')
 def hello_world():
     return 'Summarization service'

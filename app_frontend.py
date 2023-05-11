@@ -3,13 +3,13 @@ import requests
 from PyQt5.QtGui import QPixmap, QPainter, QPalette
 from PyQt5.QtWidgets import QApplication, QFileDialog, QComboBox, QDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel, \
     QLineEdit, QPushButton, QMainWindow, QMessageBox
-
+import re
+from bs4 import BeautifulSoup
 
 class OptionDialog(QDialog):
     def __init__(self):
         super().__init__()
 
-        # Set up the GUI
         self.setWindowTitle('Choose Option')
         self.setGeometry(400, 400, 400, 400)
 
@@ -46,27 +46,75 @@ class InputDialog(QDialog):
     def __init__(self):
         super().__init__()
 
-        # Set up the GUI
         self.setWindowTitle('Select File')
         self.setGeometry(400, 400, 400, 400)
 
         self.input_field = QLineEdit()
+        self.text_line = QLineEdit()
+        self.url_line = QLineEdit()
+
+        self.text_line.setFixedHeight(self.text_line.sizeHint().height())  # Adjust the initial height
         self.file_path = None
 
         self.file_button = QPushButton('Browse')
         self.file_button.clicked.connect(self.browse_file)
         self.ok_button = QPushButton('OK')
         self.ok_button.clicked.connect(self.on_ok_clicked)
+        self.get_text_button = QPushButton('Get Text')
+        self.get_text_button.clicked.connect(self.get_text_from_url)
 
         layout = QHBoxLayout()
         layout.addWidget(QLabel('Select File:', styleSheet="font-weight: bold;"))
         layout.addWidget(self.file_button)
-        layout.addWidget(self.ok_button)
+        # layout.addWidget(self.ok_button)
 
-        self.setLayout(layout)
+        layout2 = QHBoxLayout()
+        layout2.addWidget(QLabel('Insert Text:', styleSheet="font-weight: bold;"))
+        layout2.addWidget(self.text_line)
+
+        layout3 = QHBoxLayout()
+        layout3.addWidget(QLabel('Insert URL:', styleSheet="font-weight: bold;"))
+        layout3.addWidget(self.url_line)
+        layout3.addWidget(self.get_text_button)
+
+
+        main_layout = QVBoxLayout()
+        main_layout.addLayout(layout)
+        main_layout.addLayout(layout2)
+        main_layout.addLayout(layout3)
+        main_layout.addWidget(self.ok_button)
+        self.setLayout(main_layout)
 
         # Set background image
         self.set_background_image('img2.jpg')  # Replace with the path to your image file
+
+    def remove_hyperlinks(self,text):
+        # Define regular expression pattern to match hyperlinks
+        pattern = re.compile(r'<a href=.*?>(.*?)</a>')
+
+        # Remove hyperlinks from text
+        text = re.sub(pattern, r'\1', text)
+
+        return text
+
+
+    def get_text_from_url(self):
+        url = self.url_line.text()
+        response = requests.get(url)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        # Remove script and style tags
+        for script in soup(["script", "style"]):
+            script.extract()
+
+        for title in soup.find_all('title'):
+            title.decompose()
+
+        text = soup.get_text()
+        # Remove extra white space
+        text = " ".join(text.split())
+
+        text = self.remove_hyperlinks(text)
+        self.text_line.setText(text)
 
     def set_background_image(self, image_path):
         pixmap = QPixmap(image_path)
@@ -77,7 +125,7 @@ class InputDialog(QDialog):
 
     def on_ok_clicked(self):
         # Check if the input field is empty
-        if not self.input_field.text():
+        if not self.input_field.text() and not self.text_line.text():
             # Display an error message to the user
             error_box = QMessageBox()
             error_box.setWindowTitle('Error')
@@ -94,15 +142,16 @@ class InputDialog(QDialog):
         file_path, _ = QFileDialog.getOpenFileName(self, 'Select File', '', 'All Files (*);;Text Files (*.txt)', options=options)
         if file_path:
             self.file_path = file_path
-            with open(file_path, 'r') as file:
+            with open(file_path, mode='r', encoding='utf-8') as file:
                 self.input_field.setText(file.read())
 
+    def get_text(self):
+        return self.input_field.text()
 
 class InputNum(QDialog):
     def __init__(self, input_field_text, temp):
         super().__init__()
 
-        # Set up the GUI
         self.setWindowTitle('Enter Input number')
         self.setGeometry(400, 400, 400, 400)
         self.temp = temp
@@ -111,8 +160,6 @@ class InputNum(QDialog):
 
         # Connect the "Run" button to the run_model method
         self.run_button.clicked.connect(self.run_model)
-
-
         self.run_button.setStyleSheet("font-weight: bold;")
 
         button_layout = QHBoxLayout()
@@ -140,7 +187,7 @@ class InputNum(QDialog):
 
     def run_model(self):
 
-        # Get the input data from the GUI
+
         input_data = input_field_text
         input_num = self.input_field.text()
 
@@ -168,7 +215,8 @@ class InputNum(QDialog):
         self.summary1 = str(self.summary_with_newlines2).replace('}', '')
         self.summary2 = str(self.summary1).replace('{', '')
         self.summary3 = str(self.summary2).replace(':', '')
-
+        # lines = self.summary3.splitlines()
+        # new_text = '\n'.join(lines[1:])
         self.close()
         bert_app = BertApp(self.summary3)
         bert_app.show()
@@ -180,7 +228,6 @@ class BertApp(QWidget):
     def __init__(self, summary_with_newlines):
         super().__init__()
 
-        # Set up the GUI
         self.setWindowTitle('BERT Application')
         self.setGeometry(300, 400, 400, 400)
 
@@ -218,7 +265,7 @@ class BertApp(QWidget):
         options = QFileDialog.Options()
         file_path, _ = QFileDialog.getSaveFileName(self, 'Export Result', '', 'Text Files (*.txt)', options=options)
         if file_path:
-            with open(file_path, 'w') as file:
+            with open(file_path, 'w', encoding='gbk') as file:
                 file.write(self.result_label.text())
             print(f"Result exported to file: {file_path}")
 
@@ -226,25 +273,33 @@ if __name__ == '__main__':
     # Set up the Flask server URL
     SERVER_URL = 'http://localhost:1313'
 
-    # Set up the BERT model
-    MODEL_FILE = 'finalized_model.sav'
-    model = joblib.load(MODEL_FILE)
+    # # Set up the BERT model
+    # MODEL_FILE = 'finalized_model.sav'
+    # model = joblib.load(MODEL_FILE)
 
     # Set up the GUI
     app = QApplication([])
     temp = ''
-    # Usage
+
     dialog = InputDialog()
     if dialog.exec_() == QDialog.Accepted:
-        file_path = dialog.file_path
-        if file_path:
-            print(f"Selected file: {file_path}")
-            # print(f"File contents: {dialog.input_field.text()}")
-            input_field_text = dialog.input_field.text()
-        else:
-            # Handle the case where the user cancels the input dialog
-            input_field_text = ''
+        # print(f"File contents: {dialog.input_field.text()}")
+        if not dialog.text_line.text() :
+            print(2)
+            file_path = dialog.file_path
+            if file_path:
+                print(f"Selected file: {file_path}")
+                # input_field_text = dialog.input_field.text()
+                input_field_text = dialog.get_text()
 
+
+        if not dialog.input_field.text():
+            input_field_text = dialog.text_line.text()
+        # if not dialog.input_field.text() and not dialog.text_line:
+        #     input_field_text = dialog.text_line.text()
+    else:
+        # Handle the case where the user cancels the input dialog
+        input_field_text = ''
 
     # Show the OptionDialog and get the chosen option
     option_dialog = OptionDialog()

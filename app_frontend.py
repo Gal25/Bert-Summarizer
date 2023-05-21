@@ -35,7 +35,7 @@ try:
             self.setLayout(layout)
 
             # Set background image
-            self.set_background_image('img2.jpg')  # Replace with the path to your image file
+            self.set_background_image('image/img2.jpg')  # Replace with the path to your image file
 
 
         def set_background_image(self, image_path):
@@ -92,7 +92,7 @@ try:
             self.setLayout(main_layout)
 
             # Set background image
-            self.set_background_image('img2.jpg')  # Replace with the path to your image file
+            self.set_background_image('image/img2.jpg')  # Replace with the path to your image file
 
         def remove_hyperlinks(self,text):
             # Define regular expression pattern to match hyperlinks
@@ -181,7 +181,7 @@ try:
             self.setLayout(layout)
 
             # Set background image
-            self.set_background_image('img2.jpg')  # Replace with the path to your image file
+            self.set_background_image('image/img2.jpg')  # Replace with the path to your image file
 
         def set_background_image(self, image_path):
             pixmap = QPixmap(image_path)
@@ -274,7 +274,7 @@ try:
             self.result_label.setText(summary_with_newlines)
             self.setLayout(main_layout)
             # Set background image
-            self.set_background_image('pic2.jpg')
+            self.set_background_image('image/pic2.jpg')
 
         def set_background_image(self, image_path):
             pixmap = QPixmap(image_path)

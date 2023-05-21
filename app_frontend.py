@@ -8,6 +8,9 @@ from PyQt5.QtWidgets import QApplication, QFileDialog, QComboBox, QDialog, QWidg
 import re
 from bs4 import BeautifulSoup
 import traceback
+
+
+data = ''
 try:
     class OptionDialog(QDialog):
         def __init__(self):
@@ -48,7 +51,7 @@ try:
     class InputDialog(QDialog):
         def __init__(self):
             super().__init__()
-
+            global data
             self.setWindowTitle('Select File')
             self.setGeometry(400, 400, 400, 400)
 
@@ -138,6 +141,7 @@ try:
                 return
 
             # If the input field is not empty, accept the dialog
+            data = self.input_field.text()
             self.accept()
 
         def browse_file(self):
@@ -159,6 +163,7 @@ try:
             self.setGeometry(400, 400, 400, 400)
             self.temp = temp
             self.input_field = QLineEdit()
+
             self.run_button = QPushButton('Run', self)
 
             # Connect the "Run" button to the run_model method
@@ -186,6 +191,7 @@ try:
                 print(f"Failed to set background image: {image_path}")
 
         def get_input_text(self):
+
             return self.input_field.text()
 
         def run_model(self):
@@ -223,7 +229,7 @@ try:
 
             try:
                 self.close()
-                self.bert_app = BertApp(self.summary3)
+                self.bert_app = BertApp(self.summary3, input_data)
                 self.bert_app.show()
             except Exception as e:
 
@@ -234,24 +240,37 @@ try:
             return self.summary_with_newlines
 
     class BertApp(QWidget):
-        def __init__(self, summary_with_newlines):
+        def __init__(self, summary_with_newlines,  input_data):
             super().__init__()
             self.setWindowTitle('BERT Application')
             self.setGeometry(300, 400, 400, 400)
             self.result_label = QLabel()
 
+            self.data = input_data
             # self.result_label.setStyleSheet("font-weight: bold;")
 
             self.export_button = QPushButton('Export', styleSheet="font-weight: bold;")
             self.export_button.clicked.connect(self.export_result)
+            self.extract_button = QPushButton('Extract Main Subject', styleSheet="font-weight: bold;")
+            self.extract_button.clicked.connect(self.extract_keywords)
+
+
             result_layout = QHBoxLayout()
             result_layout.addWidget(QLabel('Result:', styleSheet="font-weight: bold;"))
             result_layout.addWidget(self.result_label)
+
             button_layout = QHBoxLayout()
             button_layout.addWidget(self.export_button)
+
+            button_layout2 = QHBoxLayout()
+            button_layout2.addWidget(self.extract_button)
+
             main_layout = QVBoxLayout()
             main_layout.addLayout(result_layout)
             main_layout.addLayout(button_layout)
+            main_layout.addLayout(button_layout2)
+
+
             self.result_label.setText(summary_with_newlines)
             self.setLayout(main_layout)
             # Set background image
@@ -271,6 +290,21 @@ try:
                 with open(file_path, 'w', encoding='gbk') as file:
                     file.write(self.result_label.text())
                 print(f"Result exported to file: {file_path}")
+
+        def extract_keywords(self):
+            input_data = self.data
+            encoded_data = input_data.encode('utf-8')
+            data = {'text': encoded_data}
+            response = requests.post(SERVER_URL + '/keybert/', data=data)
+
+            # Process the response from the Flask server
+            self.result = response.json()
+            self.result2 = str(self.result).replace('result:', '')
+            self.result3 = str(self.result2).replace('}', '')
+            self.result4 = str(self.result3).replace('{', '')
+            self.result5 = str(self.result4).replace(':', '')
+            # Display the main subject
+            QMessageBox.information(self, "Main Subject", f"Main Subject: {self.result5}")
 
 
 

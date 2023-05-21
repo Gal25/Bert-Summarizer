@@ -1,7 +1,7 @@
 import unittest
 import sys
 from PyQt5.QtWidgets import QApplication, QFileDialog, QMessageBox, QDialog
-from front import OptionDialog, InputDialog, InputNum, BertApp
+from app_frontend import OptionDialog, InputDialog, InputNum, BertApp
 import os
 from unittest.mock import patch
 
@@ -58,15 +58,15 @@ class TestApp(unittest.TestCase):
 
 
     def test_bert_app(self):
-        app = BertApp('Test summary')
+        app = BertApp('Test summary', 'Test input text')
         self.assertEqual(app.result_label.text(), 'Test summary')
 
-        app = BertApp('hello , this is our final project , enjoy!')
+        app = BertApp('hello , this is our final project , enjoy!' , 'Test input text')
         self.assertEqual(app.result_label.text(), 'hello , this is our final project , enjoy!')
 
     def test_export_result(self):
-        app = BertApp('Test summary')
-        temp_file_path = 'test_export.txt' 
+        app = BertApp('Test summary' , 'Test input text')
+        temp_file_path = 'test_export.txt'
         app.export_result()
 
         # Check if the file is created and contains the expected content
@@ -90,7 +90,7 @@ class TestApp(unittest.TestCase):
         self.assertEqual(dialog.get_input_text(), '')
 
     def test_empty_bert_app(self):
-        app = BertApp('')
+        app = BertApp('', '')
         self.assertEqual(app.result_label.text(), '')
 
 if __name__ == '__main__':

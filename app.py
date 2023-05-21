@@ -5,7 +5,7 @@ from keybert import KeyBERT
 
 
 app = Flask(__name__)
-model = joblib.load('finalized_model.sav')
+model = joblib.load('models/finalized_model.sav')
 
 
 @app.route('/')
@@ -14,8 +14,8 @@ def hello_world():
 
 @app.route('/keybert/', methods=['POST'])
 def keyBert():
-    # kw_model = joblib.load('kw_model.sav')
-    kw_model = KeyBERT()
+    kw_model = joblib.load('models/kw_model.sav')
+    # kw_model = KeyBERT()
 
     data = request.form
     text = data['text']

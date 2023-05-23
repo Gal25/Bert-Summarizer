@@ -7,12 +7,19 @@ Our system provides a text summary of long texts or medical articles. Our produc
 
 # Requirements:
 At the beginning of the project, we agreed on requirements that we would like to realize, and we used them to plan our project
+
 • The model will be able to summarize long texts.
+
 • Let the machine learn the relevant medical terms.
+
 • The conclusion of the model will be fast and will not take much time for the user.
+
 • The product will be designed in a way that users can understand it easily.
+
 • The summary result will be accessible to the user in a convenient way.
+
 • The article loading process will be efficient.
+
 • The summary should be structured in a good syntactical way and not sentences that are not related to each other.
 
 # How It Works?
@@ -42,8 +49,10 @@ Upon receiving a response payload from the server surface that includes the text
 Python flask is a micro web framework used for object–relational mapping for converting data between front-end and ML model.
 
 **ML Model**
+
 1.A trained ML (machine learning) model based on BERT extractive summarizer receives a payload and as a result of inferencing the model responds with a payload that includes the text summarization.
 The summarization will be carried out according to the directive in the incoming payload.
+
 2. A trained ML (machine learning) model based on KeyBERT, The method returns a list of keywords/keyphrases extracted from the text and their probabilities. And we can classify texts by topic relevance.
 
 

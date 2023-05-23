@@ -41,19 +41,19 @@ There are 2 approaches in the solution that we implement in the task of summariz
 
 # Modulation and Patterns:
 
-**User space**
+**User space - app_frontend.py**
 The front-end site is designed to fill a payload that will be sent to a server space for ML model inference. The main part of the payload is text that will be Moved to summary. In addition, the payload includes instructions on how to text To summarize: according to the ratio between the number of words in the source text vs. Summary, or by several sentences in the summary text.
 Upon receiving a response payload from the server surface that includes the text summary, The front end will shape and normalize the ML model response for better representation and publish the result.
 
-**Server space -  Python Flask** 
+**Server space -  Python Flask - app.py** 
 Python flask is a micro web framework used for object–relational mapping for converting data between front-end and ML model.
 
 **ML Model**
 
-1.A trained ML (machine learning) model based on BERT extractive summarizer receives a payload and as a result of inferencing the model responds with a payload that includes the text summarization.
+1.**Bertsum.ipynb** - A trained ML (machine learning) model based on BERT extractive summarizer receives a payload and as a result of inferencing the model responds with a payload that includes the text summarization.
 The summarization will be carried out according to the directive in the incoming payload.
 
-2. A trained ML (machine learning) model based on KeyBERT, The method returns a list of keywords/keyphrases extracted from the text and their probabilities. And we can classify texts by topic relevance.
+2.**KeyBert.py** A trained ML (machine learning) model based on KeyBERT, The method returns a list of keywords/keyphrases extracted from the text and their probabilities. And we can classify texts by topic relevance.
 
 
 

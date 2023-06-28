@@ -4,11 +4,13 @@ import joblib
 import requests
 from PyQt5.QtGui import QPixmap, QPainter, QPalette
 from PyQt5.QtWidgets import QApplication, QFileDialog, QComboBox, QDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel, \
-    QLineEdit, QPushButton, QMainWindow, QMessageBox
+    QLineEdit, QPushButton, QMainWindow, QMessageBox, QTextEdit
 import re
 from bs4 import BeautifulSoup
-import traceback
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
+import traceback
 
 data = ''
 try:
@@ -35,7 +37,7 @@ try:
             self.setLayout(layout)
 
             # Set background image
-            self.set_background_image('image/img2.jpg')  # Replace with the path to your image file
+            self.set_background_image('image/view.jpg')  # Replace with the path to your image file
 
 
         def set_background_image(self, image_path):
@@ -92,7 +94,7 @@ try:
             self.setLayout(main_layout)
 
             # Set background image
-            self.set_background_image('image/img2.jpg')  # Replace with the path to your image file
+            self.set_background_image('image/view.jpg')  # Replace with the path to your image file
 
         def remove_hyperlinks(self,text):
             # Define regular expression pattern to match hyperlinks
@@ -181,7 +183,7 @@ try:
             self.setLayout(layout)
 
             # Set background image
-            self.set_background_image('image/img2.jpg')  # Replace with the path to your image file
+            self.set_background_image('image/view.jpg')  # Replace with the path to your image file
 
         def set_background_image(self, image_path):
             pixmap = QPixmap(image_path)
@@ -224,12 +226,14 @@ try:
             self.summary1 = str(self.summary_with_newlines2).replace('}', '')
             self.summary2 = str(self.summary1).replace('{', '')
             self.summary3 = str(self.summary2).replace(':', '')
+            self.summary4 = str(self.summary3).replace("'", '')
+
             # lines = self.summary3.splitlines()
             # new_text = '\n'.join(lines[1:])
 
             try:
                 self.close()
-                self.bert_app = BertApp(self.summary3, input_data)
+                self.bert_app = BertApp(self.summary4, input_data)
                 self.bert_app.show()
             except Exception as e:
 
@@ -247,13 +251,15 @@ try:
             self.result_label = QLabel()
 
             self.data = input_data
+            self.summary = summary_with_newlines
             # self.result_label.setStyleSheet("font-weight: bold;")
 
             self.export_button = QPushButton('Export', styleSheet="font-weight: bold;")
             self.export_button.clicked.connect(self.export_result)
             self.extract_button = QPushButton('Extract Main Subject', styleSheet="font-weight: bold;")
             self.extract_button.clicked.connect(self.extract_keywords)
-
+            self.send_email_button = QPushButton('Send Email', styleSheet="font-weight: bold;")
+            self.send_email_button.clicked.connect(self.send_email)
 
             result_layout = QHBoxLayout()
             result_layout.addWidget(QLabel('Result:', styleSheet="font-weight: bold;"))
@@ -265,16 +271,21 @@ try:
             button_layout2 = QHBoxLayout()
             button_layout2.addWidget(self.extract_button)
 
+            button_layout3 = QHBoxLayout()
+            button_layout3.addWidget(self.send_email_button)
+
             main_layout = QVBoxLayout()
             main_layout.addLayout(result_layout)
             main_layout.addLayout(button_layout)
             main_layout.addLayout(button_layout2)
+            main_layout.addLayout(button_layout3)
+
 
 
             self.result_label.setText(summary_with_newlines)
             self.setLayout(main_layout)
             # Set background image
-            self.set_background_image('image/pic2.jpg')
+            self.set_background_image('image/blue.jpg')
 
         def set_background_image(self, image_path):
             pixmap = QPixmap(image_path)
@@ -303,10 +314,67 @@ try:
             self.result3 = str(self.result2).replace('}', '')
             self.result4 = str(self.result3).replace('{', '')
             self.result5 = str(self.result4).replace(':', '')
+            self.result6 = str(self.result5).replace("'", '')
+
             # Display the main subject
-            QMessageBox.information(self, "Main Subject", f"Main Subject: {self.result5}")
+            QMessageBox.information(self, "Main Subject", f"Main Subject: {self.result6}")
 
 
+        def send_email(self):
+            # Get user input for email details
+            dialog = EmailDialog()
+            if dialog.exec_() == QDialog.Accepted:
+                recipient_email = dialog.recipient_email_text.text()
+                subject = dialog.subject_text.text()
+                newline = "\n"
+                mes = self.summary + newline
+                message = mes + dialog.message_text.toPlainText()
+                data = {'subject': subject, 'message': message, 'recipient_email': recipient_email}
+                response = requests.post(SERVER_URL + '/sendemail', data=data)
+                self.result = response.json()
+                QMessageBox.information(self, "send email", f"{self.result}")
+
+
+    class EmailDialog(QDialog):
+        def __init__(self):
+            super().__init__()
+            self.setWindowTitle('Email Details')
+
+            self.recipient_email_label = QLabel('Recipient Email:')
+            self.recipient_email_text = QLineEdit()
+
+            self.subject_label = QLabel('Subject:')
+            self.subject_text = QLineEdit()
+
+            self.message_label = QLabel('Message:')
+            self.message_text = QTextEdit()
+
+            self.send_button = QPushButton('Send')
+            self.send_button.clicked.connect(self.accept)
+
+            layout = QVBoxLayout()
+            layout.addWidget(self.recipient_email_label)
+            layout.addWidget(self.recipient_email_text)
+            layout.addWidget(self.subject_label)
+            layout.addWidget(self.subject_text)
+            layout.addWidget(self.message_label)
+            layout.addWidget(self.message_text)
+
+            button_layout = QHBoxLayout()
+            button_layout.addWidget(self.send_button)
+
+            layout.addLayout(button_layout)
+            self.setLayout(layout)
+
+            # Set background image
+            self.set_background_image('image/view.jpg')
+
+        def set_background_image(self, image_path):
+            pixmap = QPixmap(image_path)
+            if not pixmap.isNull():
+                self.setStyleSheet(f"background-image: url({image_path}); background-repeat: no-repeat;")
+            else:
+                print(f"Failed to set background image: {image_path}")
 
     if __name__ == '__main__':
         # Set up the Flask server URL

@@ -6,6 +6,7 @@ from PyQt5.QtGui import QPixmap, QPainter, QPalette
 from PyQt5.QtWidgets import QApplication, QFileDialog, QComboBox, QDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel, \
     QLineEdit, QPushButton, QMainWindow, QMessageBox, QTextEdit
 import re
+from PyQt5.QtGui import QIcon
 from bs4 import BeautifulSoup
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -20,7 +21,8 @@ try:
 
             self.setWindowTitle('Choose Option')
             self.setGeometry(400, 400, 400, 400)
-
+            icon = QIcon(r'C:\Users\galco\PycharmProjects\finalproject\image\BERT.png')
+            self.setWindowIcon(icon)
             self.option_combobox = QComboBox()
             self.option_combobox.addItems(['Number of Sentences', 'Ratio'])
             self.ok_button = QPushButton('OK')
@@ -92,7 +94,8 @@ try:
             main_layout.addLayout(layout3)
             main_layout.addWidget(self.ok_button)
             self.setLayout(main_layout)
-
+            icon = QIcon(r'C:\Users\galco\PycharmProjects\finalproject\image\BERT.png')
+            self.setWindowIcon(icon)
             # Set background image
             self.set_background_image('image/view.jpg')  # Replace with the path to your image file
 
@@ -184,7 +187,8 @@ try:
 
             # Set background image
             self.set_background_image('image/view.jpg')  # Replace with the path to your image file
-
+            icon = QIcon(r'C:\Users\galco\PycharmProjects\finalproject\image\BERT.png')
+            self.setWindowIcon(icon)
         def set_background_image(self, image_path):
             pixmap = QPixmap(image_path)
             if not pixmap.isNull():
@@ -234,6 +238,7 @@ try:
             try:
                 self.close()
                 self.bert_app = BertApp(self.summary4, input_data)
+
                 self.bert_app.show()
             except Exception as e:
 
@@ -253,6 +258,9 @@ try:
             self.data = input_data
             self.summary = summary_with_newlines
             # self.result_label.setStyleSheet("font-weight: bold;")
+
+            icon = QIcon(r'C:\Users\galco\PycharmProjects\finalproject\image\BERT.png')
+            self.setWindowIcon(icon)
 
             self.export_button = QPushButton('Export', styleSheet="font-weight: bold;")
             self.export_button.clicked.connect(self.export_result)

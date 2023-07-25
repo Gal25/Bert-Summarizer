@@ -76,7 +76,6 @@ try:
             layout = QHBoxLayout()
             layout.addWidget(QLabel('Select File:', styleSheet="font-weight: bold;"))
             layout.addWidget(self.file_button)
-            # layout.addWidget(self.ok_button)
 
             layout2 = QHBoxLayout()
             layout2.addWidget(QLabel('Insert Text:', styleSheet="font-weight: bold;"))
@@ -347,7 +346,8 @@ try:
         def __init__(self):
             super().__init__()
             self.setWindowTitle('Email Details')
-
+            icon = QIcon(r'C:\Users\galco\PycharmProjects\finalproject\image\BERT.png')
+            self.setWindowIcon(icon)
             self.recipient_email_label = QLabel('Recipient Email:')
             self.recipient_email_text = QLineEdit()
 
@@ -388,30 +388,23 @@ try:
         # Set up the Flask server URL
         SERVER_URL = 'http://localhost:1313'
 
-        # # Set up the BERT model
-        # MODEL_FILE = 'finalized_model.sav'
-        # model = joblib.load(MODEL_FILE)
-
         # Set up the GUI
         app = QApplication([])
         temp = ''
 
         dialog = InputDialog()
         if dialog.exec_() == QDialog.Accepted:
-            # print(f"File contents: {dialog.input_field.text()}")
             if not dialog.text_line.text() :
                 print(2)
                 file_path = dialog.file_path
                 if file_path:
                     print(f"Selected file: {file_path}")
-                    # input_field_text = dialog.input_field.text()
                     input_field_text = dialog.get_text()
 
 
             if not dialog.input_field.text():
                 input_field_text = dialog.text_line.text()
-            # if not dialog.input_field.text() and not dialog.text_line:
-            #     input_field_text = dialog.text_line.text()
+
         else:
             # Handle the case where the user cancels the input dialog
             input_field_text = ''
